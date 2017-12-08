@@ -4,6 +4,7 @@
 
 
 
+# DONE: refactor, move file getter into its own function
 # DONE: stop iteration if "end of range" of images reached.
 
 # TODO: make multithreaded / multiprocess to download more images at once
@@ -14,16 +15,14 @@
 import requests
 
 
-def main():
-    # Main function
-    print('Techamok Harvester')
-    year = 17
-    base_url = f'http://www.techamok.com/pics'
+def get_file_from_url(base_url=f'http://www.techamok.com/pics', year=17, month_index=11, start_index=1, stop_index=500):
+    # year = 17
+    # base_url = f'http://www.techamok.com/pics'
     # base_url = f'http://www.techamok.com/pics//17/dec/best'
-    months = ['jan', 'feb', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov','dec']
-    month_index = -1
-    start_index = 1
-    stop_index = 275
+    months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
+    # month_index = -1
+    # start_index = 1
+    # stop_index = 275
     for i in range(start_index, stop_index):
         url = f'{base_url}//{year}/{months[month_index]}/best/best{i:03}.jpg'
         filename = url.rsplit('/', 1)[1]
@@ -40,8 +39,13 @@ def main():
             print(f'Written {url} to disk at {filename}')
         else:
             print(f'Skipping {url}, REASON = content from server not an image')
-            break   # Break out of loop, assuming that end of range have been reached
-    
+            break  # Break out of loop, assuming that end of range have been reached
+
+
+def main():
+    # Main function
+    print('Techamok Harvester')
+    get_file_from_url(start_index=104)
 
 if __name__ == '__main__':
     main()
