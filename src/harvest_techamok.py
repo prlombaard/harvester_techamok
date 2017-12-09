@@ -13,9 +13,19 @@
 
 
 import requests
+import threading
+import inspect
 
 
-def get_file_from_url(base_url=f'http://www.techamok.com/pics', year=17, month_index=11, start_index=1, stop_index=500):
+def get_file_from_url(base_url=f'http://www.techamok.com/pics', year=17, month_index=11, start_index=1, stop_index=300):
+    print('Hello from get_file_from_url')
+    frame = inspect.currentframe()
+    args, _, _, values = inspect.getargvalues(frame)
+    print('function name "%s"' % inspect.getframeinfo(frame)[2])
+    for i in args:
+        print("    %s = %s" % (i, values[i]))
+    # return
+    # return [(i, values[i]) for i in args]
     # year = 17
     # base_url = f'http://www.techamok.com/pics'
     # base_url = f'http://www.techamok.com/pics//17/dec/best'
@@ -34,8 +44,9 @@ def get_file_from_url(base_url=f'http://www.techamok.com/pics', year=17, month_i
         # print(r.headers['Content-Type'])
         if r.headers['Content-Type'] == 'image/jpeg':
             # File found on server, continue to save the file to disk
-            # TODO: use context manager
-            open(filename, 'wb').write(r.content)
+            # DONE: use context manager
+            with open(filename, 'wb') as f:
+                f.write(r.content)
             print(f'Written {url} to disk at {filename}')
         else:
             print(f'Skipping {url}, REASON = content from server not an image')
@@ -45,7 +56,15 @@ def get_file_from_url(base_url=f'http://www.techamok.com/pics', year=17, month_i
 def main():
     # Main function
     print('Techamok Harvester')
-    get_file_from_url(start_index=104)
+    # get_file_from_url(start_index=104)
+
+    workers = [threading.Thread(target=get_file_from_url, kwargs={'month_index': x+8}) for x in range(4)]
+
+    for worker in workers:
+        worker.start()
+    for worker in workers:
+        worker.join()
+
 
 if __name__ == '__main__':
     main()
